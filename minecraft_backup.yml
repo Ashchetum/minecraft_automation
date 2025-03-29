@@ -1,0 +1,43 @@
+---
+- name: Test Backups
+  hosts: localhost
+  gather_facts: false
+  vars:
+    server_dir: /Users/kyleross/Documents/MinecraftServer_test/
+    backup_dir: /Users/kyleross/Documents/backup_test/
+    jar_file: /Users/kyleross/Documents/MinecraftServer_test/server.jar
+    screen_name: minecraft_test
+    timestamp: "{{ lookup('pipe', 'date +%Y-%m-%d_%H-%M-%S') }}"
+    backup_file: "{{ backup_dir }}/minecraft_backup_{{ timestamp }}.tar.gz"
+
+  tasks:
+    - name: Send "say" message to players
+      shell: screen -S {{ screen_name }} -p 0 -X stuff "say Server backup starting in 5 seconds\n"
+      ignore_errors: true
+
+    - name: Save all worlds
+      shell: screen -S {{ screen_name }} -p 0 -X stuff "save-all\n"
+      ignore_errors: true
+
+    - name: Wait for save to complete
+      pause:
+        seconds: 5
+
+    - name: Stop the server gracefully
+      shell: screen -S {{ screen_name }} -p 0 -X stuff "stop\n"
+      ignore_errors: true
+
+    - name: Wait for shutdown
+      pause:
+        seconds: 20
+
+    - name: Create backup
+      archive:
+        path: "{{ server_dir }}"
+        dest: "{{ backup_file }}"
+        format: gz
+
+    - name: Start Minecraft server in screen session
+      shell: screen -dmS {{ screen_name }} java -Xms4G -Xmx6G -jar {{ jar_file }} nogui
+      args:
+        chdir: "{{ server_dir }}"
