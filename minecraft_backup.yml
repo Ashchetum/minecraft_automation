@@ -4,7 +4,7 @@
   gather_facts: false
   vars:
     server_dir: /Users/kyleross/Documents/MinecraftServer_test/
-    backup_dir: /Users/kyleross/Documents/backup_test/
+    backup_dir: /Users/kyleross/Documents/backup_test
     jar_file: /Users/kyleross/Documents/MinecraftServer_test/server.jar
     screen_name: minecraft_test
     timestamp: "{{ lookup('pipe', 'date +%Y-%m-%d_%H-%M-%S') }}"
